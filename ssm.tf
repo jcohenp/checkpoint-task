@@ -1,0 +1,36 @@
+resource "aws_ssm_parameter" "secret_token" {
+  name        = "token-ms-1"
+  description = "token to check before send to sqs"
+  type        = "SecureString"
+  value       = var.token
+  overwrite   = true
+  
+  tags = {
+    Terraform = "true"
+    Environment = "checkpoint"
+  }
+}
+
+resource "aws_ssm_parameter" "sqs_queue" {
+  name        = var.sqs_name
+  description = "sqs queue to use to send message then to push on s3 bucket"
+  type        = "String"
+  value       = data.aws_sqs_queue.queue_data.url
+
+  tags = {
+    Terraform = "true"
+    Environment = "checkpoint"
+  }
+}
+
+resource "aws_ssm_parameter" "S3_bucket" {
+  name        = "S3_bucket"
+  description = "Name of the bucket to push the message from sqs"
+  type        = "String"
+  value       = var.bucket_name
+
+  tags = {
+    Terraform = "true"
+    Environment = "checkpoint"
+  }
+}

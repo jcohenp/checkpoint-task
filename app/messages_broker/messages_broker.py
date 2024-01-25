@@ -48,8 +48,7 @@ def process_messages():
         if 'Messages' in response:
             for message in response['Messages']:
                 try:
-                    body = eval(message['Body'])
-                    user_data = body.get("data")
+                    user_data = eval(message['Body'])
                     s3.put_object(
                         Bucket=bucket_name,
                         Key=f'sqs_message_{user_data.get("email_timestream")}.json',

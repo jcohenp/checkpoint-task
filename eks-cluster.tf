@@ -36,3 +36,47 @@ module "eks" {
     }
   }
 }
+
+data "aws_eks_node_groups" "node_groups" {
+  cluster_name = local.cluster_name
+}
+
+data "aws_eks_node_group" "node_group_info" {
+  for_each = data.aws_eks_node_groups.node_groups.names
+
+  cluster_name    = local.cluster_name
+  node_group_name = each.value
+}
+
+resource "aws_iam_role_policy_attachment" "custom_nodegroup_policy" {
+  for_each   = data.aws_eks_node_groups.node_groups.names
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
+  role       = element(split("/", data.aws_eks_node_group.node_group_info[each.key].node_role_arn), 1)
+}
+
+data "aws_iam_policy_document" "sqs_publish_policy" {
+  source_json = <<JSON
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "sqs:SendMessage",
+      "Resource": "${aws_sqs_queue.ms-queue.arn}"
+    }
+  ]
+}
+JSON
+}
+
+resource "aws_iam_policy" "sqs_publish_policy" {
+  name        = "sqs-publish-policy"
+  description = "IAM policy for publishing messages to SQS queue"
+  policy      = data.aws_iam_policy_document.sqs_publish_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "sqs_publish_policy_attachment" {
+  for_each   = data.aws_eks_node_groups.node_groups.names
+  policy_arn = aws_iam_policy.sqs_publish_policy.arn
+  role       = element(split("/", data.aws_eks_node_group.node_group_info[each.key].node_role_arn), 1)
+}

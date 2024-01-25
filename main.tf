@@ -19,47 +19,47 @@ resource "random_string" "suffix" {
   special = false
 }
 
-resource "kubernetes_deployment" "test" {
+resource "kubernetes_deployment" "flaskapp" {
   metadata {
-    name      = "nginx"
+    name      = "flaskapp"
   }
   spec {
     replicas = 2
     selector {
       match_labels = {
-        app = "MyTestApp"
+        app = "flaskapp"
       }
     }
     template {
       metadata {
         labels = {
-          app = "MyTestApp"
+          app = "flaskapp"
         }
       }
       spec {
         container {
-          image = "nginx"
-          name  = "nginx-container"
+          image = "jcohenp/checkpoint-exam"
+          name  = "flaskapp"
           port {
-            container_port = 80
+            container_port = 5001
           }
         }
       }
     }
   }
 }
-resource "kubernetes_service" "test" {
+resource "kubernetes_service" "flaskapp_svc" {
   metadata {
-    name      = "nginx"
+    name      = "flaskappsvc"
   }
   spec {
     selector = {
-      app = kubernetes_deployment.test.spec.0.template.0.metadata.0.labels.app
+      app = kubernetes_deployment.flaskapp.spec.0.template.0.metadata.0.labels.app
     }
     type = "LoadBalancer"
     port {
-      port        = 80
-      target_port = 80
+      port        = 5001
+      target_port = 5001
     }
   }
 }

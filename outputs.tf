@@ -22,10 +22,10 @@ output "ssm_token" {
     value = aws_ssm_parameter.secret_token.name
 }
 
-output "ssm_token" {
+output "ssm_bucket" {
     value = aws_ssm_parameter.S3_bucket.name
 }
 
-output "ssm_token" {
+output "ssm_sqs" {
     value = aws_ssm_parameter.sqs_queue.name
 }

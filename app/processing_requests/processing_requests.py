@@ -30,7 +30,7 @@ def get_token_from_ssm():
 def get_sqs_from_ssm():
     try:
         response = ssm.get_parameter(
-            Name='my_sqs_queue',
+            Name='my_sqs',
             WithDecryption=True
         )
         return response['Parameter']['Value']

@@ -61,7 +61,7 @@ data "aws_iam_policy_document" "sqs_publish_policy" {
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": "sqs:SendMessage",
+      "Action": ["sqs:SendMessage", "sqs:ReceiveMessage", "sqs:DeleteMessage"],
       "Resource": "${aws_sqs_queue.ms-queue.arn}"
     }
   ]
@@ -78,5 +78,40 @@ resource "aws_iam_policy" "sqs_publish_policy" {
 resource "aws_iam_role_policy_attachment" "sqs_publish_policy_attachment" {
   for_each   = data.aws_eks_node_groups.node_groups.names
   policy_arn = aws_iam_policy.sqs_publish_policy.arn
+  role       = element(split("/", data.aws_eks_node_group.node_group_info[each.key].node_role_arn), 1)
+}
+
+data "aws_s3_bucket" "selected" {
+  bucket = var.bucket_name
+}
+
+output test {
+    value = data.aws_s3_bucket.selected.arn
+}
+
+data "aws_iam_policy_document" "s3_put_policy" {
+  source_json = <<JSON
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:*Object",
+      "Resource": "${data.aws_s3_bucket.selected.arn}/*"
+    }
+  ]
+}
+JSON
+}
+
+resource "aws_iam_policy" "s3_put_policy" {
+  name        = "s3-put-policy"
+  description = "IAM policy for adding file in the s3 bucket"
+  policy      = data.aws_iam_policy_document.s3_put_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "s3_bucket_policy_attachment" {
+  for_each   = data.aws_eks_node_groups.node_groups.names
+  policy_arn = aws_iam_policy.s3_put_policy.arn
   role       = element(split("/", data.aws_eks_node_group.node_group_info[each.key].node_role_arn), 1)
 }

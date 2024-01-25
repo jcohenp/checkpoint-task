@@ -86,7 +86,7 @@ def process_request():
         # Publish data to SQS
         sqs.send_message(
             QueueUrl=sqs_url,
-            MessageBody=str(data)
+            MessageBody=str(data.get('data', ''))
         )
 
         logger.info('Request processed successfully')

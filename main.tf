@@ -19,27 +19,27 @@ resource "random_string" "suffix" {
   special = false
 }
 
-resource "kubernetes_deployment" "flaskapp" {
+resource "kubernetes_deployment" "processing_requests" {
   metadata {
-    name      = "flaskapp"
+    name      = "processingrequests"
   }
   spec {
     replicas = 2
     selector {
       match_labels = {
-        app = "flaskapp"
+        app = "processingrequests"
       }
     }
     template {
       metadata {
         labels = {
-          app = "flaskapp"
+          app = "processingrequests"
         }
       }
       spec {
         container {
-          image = "jcohenp/checkpoint-exam"
-          name  = "flaskapp"
+          image = "jcohenp/checkpoint-processing_requests"
+          name  = "processingrequests"
           port {
             container_port = 5001
           }
@@ -48,18 +48,45 @@ resource "kubernetes_deployment" "flaskapp" {
     }
   }
 }
-resource "kubernetes_service" "flaskapp_svc" {
+resource "kubernetes_service" "processing_requests_svc" {
   metadata {
-    name      = "flaskappsvc"
+    name      = "processingrequestssvc"
   }
   spec {
     selector = {
-      app = kubernetes_deployment.flaskapp.spec.0.template.0.metadata.0.labels.app
+      app = kubernetes_deployment.processing_requests.spec.0.template.0.metadata.0.labels.app
     }
     type = "LoadBalancer"
     port {
       port        = 5001
       target_port = 5001
+    }
+  }
+}
+
+resource "kubernetes_deployment" "messages_broker" {
+  metadata {
+    name      = "messagesbroker"
+  }
+  spec {
+    replicas = 2
+    selector {
+      match_labels = {
+        app = "messagesbroker"
+      }
+    }
+    template {
+      metadata {
+        labels = {
+          app = "messagesbroker"
+        }
+      }
+      spec {
+        container {
+          image = "jcohenp/checkpoint-messages_broker"
+          name  = "messagebroker"
+        }
+      }
     }
   }
 }

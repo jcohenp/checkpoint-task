@@ -3,8 +3,8 @@ import boto3
 import json
 
 s3 = boto3.client('s3', region_name='us-east-1')
-sqs = boto3.client('sqs')
-ssm = boto3.client('ssm')
+sqs = boto3.client('sqs', region_name='us-east-1')
+ssm = boto3.client('ssm', region_name='us-east-1')
 
 def get_sqs_from_ssm():
     try:
@@ -31,7 +31,6 @@ def get_bucket_from_ssm():
 def process_messages():
     queue_url = get_sqs_from_ssm()
     bucket_name = get_bucket_from_ssm()
-    print(bucket_name)
     while True:
         response = sqs.receive_message(
             QueueUrl=queue_url,
@@ -66,7 +65,7 @@ def process_messages():
                 except Exception as e:
                     print(f"Error processing message: {str(e)}")
 
-        time.sleep(5)  # Adjust the sleep interval as needed
+        time.sleep(5) 
 
 if __name__ == '__main__':
     process_messages()

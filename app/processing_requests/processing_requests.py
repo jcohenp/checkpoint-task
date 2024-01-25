@@ -4,7 +4,6 @@ from flask import Flask, request, jsonify
 import boto3
 from datetime import datetime
 import logging
-import os
 
 # Set up logging
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
@@ -12,8 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 app = Flask(__name__)
-sqs = boto3.client('sqs')
-ssm = boto3.client('ssm')
+sqs = boto3.client('sqs', region_name='us-east-1')
+ssm = boto3.client('ssm', region_name='us-east-1')
 
 # Function to get the token from SSM
 def get_token_from_ssm():
@@ -68,14 +67,7 @@ def validate_date_format_and_fields(data):
 @app.route('/process_request', methods=['POST'])
 def process_request():
     try:
-        logger.info(f'request: {request}')
-        logger.info(f'Request URL: {request.url}')
-        logger.info(f'Request Headers: {request.headers}')
-        logger.info(f'HTTP Method: {request.method}')
-        logger.info(f'Request Data: {request.data}')
-
         data = request.json
-        print(data)
         token = data.get('token', '')
 
         # Validate token correctness

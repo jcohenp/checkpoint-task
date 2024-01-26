@@ -1,0 +1,41 @@
+name: Deploy on EKS environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      choice:
+        description: 'Choose a Docker tag'
+        required: true
+        default: 'latest'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Choose Docker tag
+        run: |
+          echo "Chosen tag is ${{ github.event.inputs.choice }}"
+
+      - name: Configure AWS credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region ${{ secrets.AWS_REGION }}
+
+      - name: Retrieve EKS Cluster Name from AWS SSM
+        id: eks-cluster-name
+        run: |
+          EKS_CLUSTER_NAME=$(aws ssm get-parameter --name "eks_cluster_name" --query 'Parameter.Value' --output text)
+          echo "EKS_CLUSTER_NAME=$EKS_CLUSTER_NAME" >> $GITHUB_ENV
+          
+      - name: Update EKS Kubeconfig
+        run: |
+          aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name $EKS_CLUSTER_NAME
+
+      - name: Deploy to EKS
+        run: |
+          kubectl set image deployment/${{ secrets.K8S_DEPLOYMENT_NAME_MESSAGES_BROKER }} ${{ secrets.K8S_DEPLOYMENT_NAME_MESSAGES_BROKER }}=${{ secrets.DOCKER_IMAGE_MESSAGES_BROKER }}:${{ github.event.inputs.choice }}

@@ -41,6 +41,6 @@ jobs:
 
       - name: Deploy to EKS
         run: |
-          kubectl set image deployment/${{ K8S_DEPLOYMENT_NAME_PROCESSING_REQUEST }} ${{ K8S_DEPLOYMENT_NAME_PROCESSING_REQUEST }}=${{ DOCKER_IMAGE_PROCESSING_REQUEST }}:${{ github.event.inputs.choice }}
+          kubectl set image deployment/${{ secrets.K8S_DEPLOYMENT_NAME_PROCESSING_REQUEST }} ${{ secrets.K8S_DEPLOYMENT_NAME_PROCESSING_REQUEST }}=${{ secrets.DOCKER_IMAGE_PROCESSING_REQUEST }}:${{ github.event.inputs.choice }}
 
 

@@ -29,7 +29,7 @@ jobs:
       - name: Retrieve EKS Cluster Name from AWS SSM
         id: eks-cluster-name
         run: |
-          EKS_CLUSTER_NAME=$(aws ssm get-parameter --name "/your/ssm/parameter/eks-cluster-name" --query 'Parameter.Value' --output text)
+          EKS_CLUSTER_NAME=$(aws ssm get-parameter --name "/your/ssm/parameter/eks_cluster_name" --query 'Parameter.Value' --output text)
           
       - name: Update EKS Kubeconfig
         run: |

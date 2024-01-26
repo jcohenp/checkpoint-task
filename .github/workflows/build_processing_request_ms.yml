@@ -17,6 +17,11 @@ jobs:
         run: |
           echo "DOCKER_IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_PROCESSING_REQUEST }}:${{ github.run_number }}" >> $GITHUB_ENV
 
+      - name: Print Docker Credentials
+        run: |
+          echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}"
+          echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}"
+          
       - name: Build & Push Docker image
         uses: mr-smithers-excellent/docker-build-push@v6
         with:

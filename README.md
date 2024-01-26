@@ -62,7 +62,13 @@ This repository contains 2 Docker microservices in Python built on EKS, S3 bucke
     terraform apply --auto-approve
     ```
 
-6. **Check if your eks environment is set properly**
+6. **Set up the kubeconfig to connect to your eks cluster:**
+
+    ```
+    aws eks update-kubeconfig --region us-east-1 --name eks-3EsNpmH7
+    ```
+
+7. **Check if your eks environment is set properly**
     
     **kubectl get all -A**
     ```
@@ -97,8 +103,8 @@ This repository contains 2 Docker microservices in Python built on EKS, S3 bucke
     default       replicaset.apps/processingrequests-6b59464c67   1         1         1       25m
     kube-system   replicaset.apps/coredns-86969bccb4              2         2         2       51m
     ```
-    
-7. **get deployment and services associated with our microservices**
+
+8. **get deployment and services associated with our microservices**
     
     **kubectl get deploy -o wide**
     ```
@@ -114,7 +120,7 @@ This repository contains 2 Docker microservices in Python built on EKS, S3 bucke
     ```
     Each deployment is created with 1 replicas and the service is LoadBalancer type. That will generate an url that is attached with a loadBalancer on AWS.
 
-8. **Validate that the S3 bucket has been created correctly**
+9. **Validate that the S3 bucket has been created correctly**
     
     ```
     aws s3 ls
@@ -125,7 +131,7 @@ This repository contains 2 Docker microservices in Python built on EKS, S3 bucke
     2023-11-29 13:31:08 devops-directive-tf-state-jul-student
     2024-01-26 17:30:54 messages-bucket-checkpoint-assignment
     ```
-9. **Validate that the SQS queue exist**:
+10. **Validate that the SQS queue exist**:
     
     ```
     aws sqs list-queues
@@ -163,7 +169,7 @@ This repository contains 2 Docker microservices in Python built on EKS, S3 bucke
     ```
     
 
-10. **Validate that the processing_requests microservice is reachable:**
+11. **Validate that the processing_requests microservice is reachable:**
     ```
     curl -X POST -H "Content-Type: application/json"  -d '{"data": {"email_subject": "Your Subject", "email_sender": "Your Sender", "email_timestream": "1706213694", "email_content": "Your Content"}, "token": "foobar"}' http://a23b88c01410c45a2ae9551d4c382a1a-595729304.us-east-1.elb.amazonaws.com:5001/process_request
     ```
@@ -173,7 +179,7 @@ This repository contains 2 Docker microservices in Python built on EKS, S3 bucke
     "message": "Request processed successfully"
     }
     ```
-11. **Let's dive into the logs:**
+12. **Let's dive into the logs:**
     ```
     ...
     'amz-sdk-invocation-id': b'3ddafec1-188d-4e16-b6c3-c5035fd9efe8', 'amz-sdk-request': b'attempt=1', 'Content-Length': '306'}>
@@ -190,7 +196,7 @@ This repository contains 2 Docker microservices in Python built on EKS, S3 bucke
     ```
     I have created a logger inside the flask app to get more information about the requests.
 
-12. **Checking the correctness of the token:(for the exercise I have defnied the token value to 'foobar'**
+13. **Checking the correctness of the token:(for the exercise I have defnied the token value to 'foobar'**
     
     Lets check when the token is not correct
     ```
@@ -201,7 +207,7 @@ This repository contains 2 Docker microservices in Python built on EKS, S3 bucke
         "error": "Invalid token"
     }
     ```
-13. **Checking the correctness of the timestamp:**
+14. **Checking the correctness of the timestamp:**
 
     ```
     curl -X POST -H "Content-Type: application/json"  -d '{"data": {"email_subject": "Your Subject", "email_sender": "Your Sender", "email_timestream": "170621369400", "email_content": "Your Content"}, "token": "foobar"}' http://a23b88c01410c45a2ae9551d4c382a1a-595729304.us-east-1.elb.amazonaws.com:5001/process_request
@@ -211,7 +217,7 @@ This repository contains 2 Docker microservices in Python built on EKS, S3 bucke
         "error": "Invalid date format or fields"
     }
     ```
-14. **Check that message_broker microservice has correctly created a s3 object from the queue:**
+15. **Check that message_broker microservice has correctly created a s3 object from the queue:**
     
     ```
     aws s3 ls messages-bucket-checkpoint-assignment

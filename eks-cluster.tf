@@ -18,7 +18,7 @@ module "eks" {
     one = {
       name = var.node_group1
 
-      instance_types = ["t3.small"]
+      instance_types = ["t3.micro"]
 
       min_size     = 1
       max_size     = 3
@@ -28,17 +28,13 @@ module "eks" {
     two = {
       name = var.node_group2
 
-      instance_types = ["t3.small"]
+      instance_types = ["t3.micro"]
 
       min_size     = 1
       max_size     = 2
       desired_size = 1
     }
   }
-}
-
-data "aws_eks_node_groups" "node_groups" {
-  cluster_name = local.cluster_name
 }
 
 locals {

@@ -4,21 +4,20 @@ on:
   workflow_dispatch:
     inputs:
       choice:
-        type: choice
-        description: Choose a Docker tag
-        options: ${{ fromJSON(needs.fetch-tags.outputs.artifacts.docker-tags) }}
+        description: 'Choose a Docker tag'
+        required: true
+        default: 'latest'
 
 jobs:
   build:
-    needs: fetch-tags
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Show available tags
+      - name: Set up Docker tag choices
+        id: docker-tag-choices
         run: |
-          DOCKER_TAGS=$(<docker_tags.txt)
-          echo "Available Docker tags:"
-          echo "$DOCKER_TAGS"
+          TAG_CHOICES=$(echo "${{ steps.get-tags.outputs.tags }}" | sed 's/^/- /')
+          echo "::set-output name=tag-choices::$TAG_CHOICES"

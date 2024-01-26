@@ -18,3 +18,13 @@ variable "token" {
   type      = string
   sensitive = true
 }
+
+variable "node_group1" {
+  type      = string
+  default = "node-group-1"
+}
+
+variable "node_group2" {
+  type      = string
+  default = "node-group-2"
+}

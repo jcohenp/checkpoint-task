@@ -34,3 +34,15 @@ resource "aws_ssm_parameter" "S3_bucket" {
     Environment = "checkpoint"
   }
 }
+
+resource "aws_ssm_parameter" "eks_cluster_name" {
+  name        = "eks_cluster_name"
+  description = "name of the eks cluster"
+  type        = "String"
+  value       = local.cluster_name
+
+  tags = {
+    Terraform = "true"
+    Environment = "checkpoint"
+  }
+}

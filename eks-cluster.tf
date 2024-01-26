@@ -16,7 +16,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     one = {
-      name = "node-group-1"
+      name = var.node_group1
 
       instance_types = ["t3.small"]
 
@@ -26,7 +26,7 @@ module "eks" {
     }
 
     two = {
-      name = "node-group-2"
+      name = var.node_group2
 
       instance_types = ["t3.small"]
 
@@ -41,17 +41,28 @@ data "aws_eks_node_groups" "node_groups" {
   cluster_name = local.cluster_name
 }
 
-data "aws_eks_node_group" "node_group_info" {
-  for_each = data.aws_eks_node_groups.node_groups.names
+locals {
+  node1_arn = module.eks.eks_managed_node_groups.one.iam_role_name
+  node2_arn = module.eks.eks_managed_node_groups.two.iam_role_name
 
-  cluster_name    = local.cluster_name
-  node_group_name = each.value
 }
 
-resource "aws_iam_role_policy_attachment" "custom_nodegroup_policy" {
-  for_each   = data.aws_eks_node_groups.node_groups.names
+output "eks_node1_arn" {
+  value = local.node1_arn
+}
+
+output "eks_node2_arn" {
+  value = local.node1_arn
+}
+
+resource "aws_iam_role_policy_attachment" "custom_nodegroup_policy_node1" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
-  role       = element(split("/", data.aws_eks_node_group.node_group_info[each.key].node_role_arn), 1)
+  role       =  local.node1_arn
+}
+
+resource "aws_iam_role_policy_attachment" "custom_nodegroup_policy_node2" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
+  role       =  local.node2_arn
 }
 
 data "aws_iam_policy_document" "sqs_publish_policy" {
@@ -75,18 +86,14 @@ resource "aws_iam_policy" "sqs_publish_policy" {
   policy      = data.aws_iam_policy_document.sqs_publish_policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "sqs_publish_policy_attachment" {
-  for_each   = data.aws_eks_node_groups.node_groups.names
+resource "aws_iam_role_policy_attachment" "sqs_publish_policy_attachment_node1" {
   policy_arn = aws_iam_policy.sqs_publish_policy.arn
-  role       = element(split("/", data.aws_eks_node_group.node_group_info[each.key].node_role_arn), 1)
+  role       = local.node1_arn
 }
 
-data "aws_s3_bucket" "selected" {
-  bucket = var.bucket_name
-}
-
-output test {
-    value = data.aws_s3_bucket.selected.arn
+resource "aws_iam_role_policy_attachment" "sqs_publish_policy_attachment_node2" {
+  policy_arn = aws_iam_policy.sqs_publish_policy.arn
+  role       = local.node2_arn
 }
 
 data "aws_iam_policy_document" "s3_put_policy" {
@@ -97,7 +104,7 @@ data "aws_iam_policy_document" "s3_put_policy" {
     {
       "Effect": "Allow",
       "Action": "s3:*Object",
-      "Resource": "${data.aws_s3_bucket.selected.arn}/*"
+      "Resource": "${aws_s3_bucket.final-bucket.arn}/*"
     }
   ]
 }
@@ -110,8 +117,12 @@ resource "aws_iam_policy" "s3_put_policy" {
   policy      = data.aws_iam_policy_document.s3_put_policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "s3_bucket_policy_attachment" {
-  for_each   = data.aws_eks_node_groups.node_groups.names
+resource "aws_iam_role_policy_attachment" "s3_bucket_policy_attachment_node1" {
   policy_arn = aws_iam_policy.s3_put_policy.arn
-  role       = element(split("/", data.aws_eks_node_group.node_group_info[each.key].node_role_arn), 1)
+  role       = local.node1_arn
+}
+
+resource "aws_iam_role_policy_attachment" "s3_bucket_policy_attachment_node2" {
+  policy_arn = aws_iam_policy.s3_put_policy.arn
+  role       = local.node2_arn
 }

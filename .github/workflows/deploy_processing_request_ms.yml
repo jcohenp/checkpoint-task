@@ -38,6 +38,8 @@ jobs:
 
       - name: Set up kubectl
         uses: azure/k8s-set-context@v1
+        with:
+          kubeconfig: "~/.kube/config"
 
       - name: Deploy to EKS
         run: |

@@ -26,4 +26,4 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
           image: ${{ secrets.DOCKER_IMAGE_PROCESSING_REQUEST }}
           registry: docker.io
-          tags: "${{ env.PROCESSING_REQUESTS_VERSION }}.${{ github.run_number }}"
+          tags: "${{ vars.PROCESSING_REQUESTS_VERSION }}.${{ github.run_number }}"

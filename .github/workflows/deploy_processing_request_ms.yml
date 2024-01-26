@@ -36,10 +36,23 @@ jobs:
         run: |
           aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name $EKS_CLUSTER_NAME
 
+      - name: Encrypt and store kubeconfig as a secret
+        run: |
+          echo ${{ secrets.KUBECONFIG }} | base64
+        id: kubeconfig
+        shell: bash
+
+      - name: Set KUBE_CONFIG secret
+        run: echo "KUBE_CONFIG=${{ steps.kubeconfig.outputs.stdout }}" >> $GITHUB_ENV
+
+      - name: Display KUBE_CONFIG secret
+        run: echo "KUBE_CONFIG=${{ secrets.KUBE_CONFIG }}"
+
+
       - name: Set up kubectl
         uses: azure/k8s-set-context@v1
         with:
-          kubeconfig: "~/.kube/config"
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
       - name: Deploy to EKS
         run: |

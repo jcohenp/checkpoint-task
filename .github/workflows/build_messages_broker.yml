@@ -1,0 +1,27 @@
+name: Build and Push Docker Image on messages_broker registry
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Version
+        run: |
+          echo "DOCKER_IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_MESSAGES_BROKER }}:${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Build & Push Docker image
+        uses: mr-smithers-excellent/docker-build-push@v6
+        with:
+          dockerfile: "${{ secrets.MESSAGES_BROKER_PATH }}/Dockerfile"
+          directory: ${{ secrets.MESSAGES_BROKER_PATH }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+          image: ${{ secrets.DOCKER_IMAGE_MESSAGES_BROKER }}
+          registry: docker.io
+          tags: "${{ vars.MESSAGES_BROKER_VERSION }}.${{ github.run_number }}"

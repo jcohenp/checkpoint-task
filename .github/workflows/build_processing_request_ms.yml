@@ -16,10 +16,6 @@ jobs:
       - name: Set Version
         run: |
           echo "DOCKER_IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_PROCESSING_REQUEST }}:${{ github.run_number }}" >> $GITHUB_ENV
-     
-      - name: List Files
-        run: |
-          ls -la
 
       - name: Build & Push Docker image
         uses: mr-smithers-excellent/docker-build-push@v6
@@ -30,4 +26,4 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
           image: ${{ secrets.DOCKER_IMAGE_PROCESSING_REQUEST }}
           registry: docker.io
-          tags: ${{ github.run_number }}
+          tags: "${{ env.PROCESSING_REQUESTS_VERSION }}.${{ github.run_number }}"

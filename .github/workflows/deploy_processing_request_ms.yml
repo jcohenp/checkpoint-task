@@ -16,21 +16,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Get Docker tags
-        id: get-tags
-        run: |
-          DOCKER_TAGS=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKER_IMAGE_PROCESSING_REQUEST }}/tags" | jq -r '.results[].name')
-          echo "::set-output name=tags::$DOCKER_TAGS"
-
-      - name: Set up Docker tag choices
-        id: docker-tag-choices
-        run: |
-          TAG_CHOICES=$(echo "${{ steps.get-tags.outputs.tags }}" | sed 's/^/- /')
-          echo "::set-output name=tag-choices::$TAG_CHOICES"
-
       - name: Choose Docker tag
         run: |
-          echo "Available tags:"
-          echo "${{ steps.docker-tag-choices.outputs.tag-choices }}"
           echo "Chosen tag is ${{ github.event.inputs.choice }}"
+
+      - name: Configure AWS credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region ${{ secrets.AWS_REGION }}
+
+      - name: Retrieve EKS Cluster Name from AWS SSM
+        id: eks-cluster-name
+        run: |
+          EKS_CLUSTER_NAME=$(aws ssm get-parameter --name "/your/ssm/parameter/eks-cluster-name" --query 'Parameter.Value' --output text)
+          
+      - name: Update EKS Kubeconfig
+        run: |
+          aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name $EKS_CLUSTER_NAME
+
 

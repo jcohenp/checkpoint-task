@@ -20,7 +20,7 @@ jobs:
       - name: Build & Push Docker image
         uses: mr-smithers-excellent/docker-build-push@v6
         with:
-          directory: ${{ secrets.PROCESSING_REQUESTS_PATH }}
+          directory: "app/processing_requests"
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           image: ${{ secrets.DOCKER_IMAGE_PROCESSING_REQUEST }}

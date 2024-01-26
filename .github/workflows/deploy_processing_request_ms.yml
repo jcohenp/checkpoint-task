@@ -4,10 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       choice:
-        type: choice
         description: 'Choose a Docker tag'
-        options:
-          - $(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKER_IMAGE_PROCESSING_REQUEST }}/tags" | jq -r '.results[].name')
+        required: true
+        default: 'latest'
 
 jobs:
   build:
@@ -23,5 +22,14 @@ jobs:
           DOCKER_TAGS=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKER_IMAGE_PROCESSING_REQUEST }}/tags" | jq -r '.results[].name')
           echo "::set-output name=tags::$DOCKER_TAGS"
 
+      - name: Set up Docker tag choices
+        id: docker-tag-choices
+        run: |
+          TAG_CHOICES=$(echo "${{ steps.get-tags.outputs.tags }}" | sed 's/^/- /')
+          echo "::set-output name=tag-choices::$TAG_CHOICES"
+
       - name: Choose Docker tag
-        run: echo "Chosen tag is ${{ github.event.inputs.choice }}"
+        run: |
+          echo "Available tags:"
+          echo "${{ steps.docker-tag-choices.outputs.tag-choices }}"
+          echo "Chosen tag is ${{ github.event.inputs.choice }}"

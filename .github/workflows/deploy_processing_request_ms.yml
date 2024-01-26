@@ -30,6 +30,7 @@ jobs:
         id: eks-cluster-name
         run: |
           EKS_CLUSTER_NAME=$(aws ssm get-parameter --name "eks_cluster_name" --query 'Parameter.Value' --output text)
+          echo "EKS_CLUSTER_NAME=$EKS_CLUSTER_NAME" >> $GITHUB_ENV
           
       - name: Update EKS Kubeconfig
         run: |

@@ -29,3 +29,7 @@ output "ssm_bucket" {
 output "ssm_sqs" {
     value = aws_ssm_parameter.sqs_queue.name
 }
+
+output "load_balancer_name" {
+  value = local.lb_name
+}

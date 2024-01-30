@@ -28,3 +28,13 @@ variable "node_group2" {
   type      = string
   default = "node-group-2"
 }
+
+variable "namespace" {
+  type    = string
+  default = "monitoring"
+}
+
+variable "kube-version" {
+  type    = string
+  default = "36.2.0"
+}

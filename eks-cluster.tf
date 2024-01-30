@@ -18,7 +18,7 @@ module "eks" {
     one = {
       name = var.node_group1
 
-      instance_types = ["t3.micro"]
+      instance_types = ["t3.medium"]
 
       min_size     = 1
       max_size     = 3
@@ -28,7 +28,7 @@ module "eks" {
     two = {
       name = var.node_group2
 
-      instance_types = ["t3.micro"]
+      instance_types = ["t3.medium"]
 
       min_size     = 1
       max_size     = 2
@@ -62,22 +62,16 @@ resource "aws_iam_role_policy_attachment" "custom_nodegroup_policy_node2" {
 }
 
 data "aws_iam_policy_document" "sqs_publish_policy" {
-  source_json = <<JSON
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": ["sqs:SendMessage", "sqs:ReceiveMessage", "sqs:DeleteMessage"],
-      "Resource": "${aws_sqs_queue.ms-queue.arn}"
-    }
-  ]
-}
-JSON
+  statement {
+    sid = "sqsPublishPolicy"
+    effect = "Allow"
+    actions = ["sqs:SendMessage", "sqs:ReceiveMessage", "sqs:DeleteMessage"]
+    resources = ["${aws_sqs_queue.ms-queue.arn}"]
+  }
 }
 
 resource "aws_iam_policy" "sqs_publish_policy" {
-  name        = "sqs-publish-policy"
+  name        = "sqsPublishPolicy"
   description = "IAM policy for publishing messages to SQS queue"
   policy      = data.aws_iam_policy_document.sqs_publish_policy.json
 }
@@ -93,22 +87,16 @@ resource "aws_iam_role_policy_attachment" "sqs_publish_policy_attachment_node2" 
 }
 
 data "aws_iam_policy_document" "s3_put_policy" {
-  source_json = <<JSON
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "s3:*Object",
-      "Resource": "${aws_s3_bucket.final-bucket.arn}/*"
-    }
-  ]
-}
-JSON
+  statement {
+    sid = "putPolicyS3"
+    effect = "Allow"
+    actions = ["s3:*Object"]
+    resources = ["${aws_s3_bucket.final-bucket.arn}/*"]
+  }
 }
 
 resource "aws_iam_policy" "s3_put_policy" {
-  name        = "s3-put-policy"
+  name        = "s3PutPolicy"
   description = "IAM policy for adding file in the s3 bucket"
   policy      = data.aws_iam_policy_document.s3_put_policy.json
 }

@@ -46,3 +46,15 @@ resource "aws_ssm_parameter" "eks_cluster_name" {
     Environment = "checkpoint"
   }
 }
+
+resource "aws_ssm_parameter" "processing_requests_externalIP" {
+  name        = "processing_requests_externalIP"
+  description = "name of the external IP to talk with the processing requests ms"
+  type        = "String"
+  value       = local.lb_name
+
+  tags = {
+    Terraform = "true"
+    Environment = "checkpoint"
+  }
+}

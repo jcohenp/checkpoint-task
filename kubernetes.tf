@@ -16,6 +16,7 @@ data "aws_availability_zones" "available" {}
 
 locals {
   cluster_name = "eks-${random_string.suffix.result}"
+  lb_name = kubernetes_service.processing_requests_svc.status.0.load_balancer.0.ingress.0.hostname
 }
 
 resource "random_string" "suffix" {
@@ -93,4 +94,10 @@ resource "kubernetes_deployment" "messages_broker" {
       }
     }
   }
+  depends_on = [
+    aws_iam_role_policy_attachment.custom_nodegroup_policy_node1,
+    aws_iam_role_policy_attachment.custom_nodegroup_policy_node2,
+    aws_iam_role_policy_attachment.sqs_publish_policy_attachment_node1,
+    aws_iam_role_policy_attachment.sqs_publish_policy_attachment_node2
+  ]
 }

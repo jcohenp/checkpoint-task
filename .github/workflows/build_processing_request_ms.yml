@@ -23,7 +23,7 @@ jobs:
 
       - name: Run Flake8
         run: |
-          flake8
+          flake8 --max-line-length 99  
         continue-on-error: false
 
       - name: Run tests

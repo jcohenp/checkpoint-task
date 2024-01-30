@@ -7,6 +7,7 @@ import json
 
 ssm = boto3.client('ssm', region_name='us-east-1')
 
+
 def get_processing_requests_externalIP_from_ssm():
     try:
         response = ssm.get_parameter(
@@ -18,8 +19,10 @@ def get_processing_requests_externalIP_from_ssm():
         print(f"Error getting externalIP of processing_requests ms from SSM: {str(e)}")
         return None
 
+
 BASE_URL = get_processing_requests_externalIP_from_ssm()
 S3_BUCKET = get_bucket_from_ssm()
+
 
 @pytest.fixture
 def valid_payload():
@@ -33,20 +36,24 @@ def valid_payload():
         "token": "foobar",
     }
 
+
 def test_valid_request(valid_payload):
     response = requests.post(f"http://{BASE_URL}:5001/process_request", json=valid_payload)
     assert response.status_code == 200
+
 
 def test_invalid_token():
     invalid_payload = {"data": {}, "token": "invalid_token"}
     response = requests.post(f"http://{BASE_URL}:5001/process_request", json=invalid_payload)
     assert response.status_code == 400
 
+
 def test_invalid_date_format(valid_payload):
     invalid_payload = valid_payload.copy()
     invalid_payload["data"]["email_timestream"] = "invalid_date"
     response = requests.post(f"http://{BASE_URL}:5001/process_request", json=invalid_payload)
     assert response.status_code == 400
+
 
 def test_s3_file_content(valid_payload):
     # Make a valid request to trigger S3 file creation

@@ -1,6 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch
-from flask import Flask
+from unittest.mock import patch
 from app.processing_requests.processing_requests import app
 
 
@@ -9,10 +8,11 @@ class TestMs2(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()
 
-    @patch('app.processing_requests.processing_requests.get_sqs_from_ssm', return_value='fake_queue_url')
-    @patch('app.processing_requests.processing_requests.get_token_from_ssm', return_value='fake_token')
+    @patch('app.processing_requests.processing_requests.get_sqs_from_ssm',
+           return_value='fake_queue_url')
+    @patch('app.processing_requests.processing_requests.get_token_from_ssm',
+           return_value='fake_token')
     @patch('app.processing_requests.processing_requests.sqs.send_message')
-
     def test_process_request(self, mock_send_message, mock_get_token, mock_get_sqs):
 
         data = {
@@ -37,8 +37,10 @@ class TestMs2(unittest.TestCase):
             MessageBody=str(data.get('data', ''))
         )
 
-    @patch('app.processing_requests.processing_requests.get_sqs_from_ssm', return_value='fake_queue_url')
-    @patch('app.processing_requests.processing_requests.get_token_from_ssm', return_value='fake_token')
+    @patch('app.processing_requests.processing_requests.get_sqs_from_ssm',
+           return_value='fake_queue_url')
+    @patch('app.processing_requests.processing_requests.get_token_from_ssm',
+           return_value='fake_token')
     @patch('app.processing_requests.processing_requests.sqs.send_message')
     def test_invalid_token(self, mock_send_message, mock_get_token, mock_get_sqs):
         # Test with an invalid token
@@ -61,8 +63,10 @@ class TestMs2(unittest.TestCase):
         # Assert that send_message was not called
         mock_send_message.assert_not_called()
 
-    @patch('app.processing_requests.processing_requests.get_sqs_from_ssm', return_value='fake_queue_url')
-    @patch('app.processing_requests.processing_requests.get_token_from_ssm', return_value='fake_token')
+    @patch('app.processing_requests.processing_requests.get_sqs_from_ssm',
+           return_value='fake_queue_url')
+    @patch('app.processing_requests.processing_requests.get_token_from_ssm',
+           return_value='fake_token')
     @patch('app.processing_requests.processing_requests.sqs.send_message')
     def test_invalid_date_format(self, mock_send_message, mock_get_token, mock_get_sqs):
         # Test with an invalid date format
@@ -84,6 +88,7 @@ class TestMs2(unittest.TestCase):
 
         # Assert that send_message was not called
         mock_send_message.assert_not_called()
+
 
 if __name__ == '__main__':
     unittest.main()

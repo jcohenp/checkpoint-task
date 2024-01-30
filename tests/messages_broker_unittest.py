@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from app.messages_broker.messages_broker import process_messages
 
 
@@ -10,7 +10,8 @@ class TestProcessMessages(unittest.TestCase):
     @patch('app.messages_broker.messages_broker.s3.put_object')
     @patch('app.messages_broker.messages_broker.get_sqs_from_ssm', return_value='fake_queue_url')
     @patch('app.messages_broker.messages_broker.get_bucket_from_ssm', return_value='fake_bucket')
-    def test_process_messages(self, mock_get_bucket, mock_get_sqs, mock_put_object, mock_delete_message, mock_receive_message):
+    def test_process_messages(self, mock_get_bucket, mock_get_sqs,
+                              mock_put_object, mock_delete_message, mock_receive_message):
         # Prepare a sample SQS message
         sample_message = {
             'Messages': [
@@ -43,6 +44,7 @@ class TestProcessMessages(unittest.TestCase):
             QueueUrl='fake_queue_url',
             ReceiptHandle='fake_receipt_handle'
         )
+
 
 if __name__ == '__main__':
     unittest.main()

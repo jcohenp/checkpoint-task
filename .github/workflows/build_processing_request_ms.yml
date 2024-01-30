@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,13 +24,7 @@ jobs:
       - name: Run tests
         run: |
           python -m unittest -v tests/processing_requests_unittest.py
-
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+        continue-on-error: false
 
       - name: Set Version
         run: |

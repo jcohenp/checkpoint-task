@@ -11,6 +11,31 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r tests/requirements.txt
+
+      - name: Run Flake8
+        run: |
+          flake8 --max-line-length 99  
+        continue-on-error: false
+
+      - name: Run tests
+        run: |
+          python -m unittest -v tests/messages_broker_unittest.py
+        continue-on-error: false
+
+      - uses: actions/checkout@v3
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: app/messages_broker/Dockerfile
+
       - name: Set Version
         run: |
           echo "DOCKER_IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_MESSAGES_BROKER }}:${{ github.run_number }}" >> $GITHUB_ENV

@@ -15,7 +15,7 @@ resource "aws_ssm_parameter" "sqs_queue" {
   name        = var.sqs_name
   description = "sqs queue to use to send message then to push on s3 bucket"
   type        = "String"
-  value       = data.aws_sqs_queue.queue_data.url
+  value       = aws_sqs_queue.ms-queue.url
 
   tags = {
     Terraform = "true"

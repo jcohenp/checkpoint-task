@@ -6,15 +6,3 @@ resource "aws_sqs_queue" "ms-queue" {
   visibility_timeout_seconds = 30
   receive_wait_time_seconds  = 0
 }
-
-data "aws_sqs_queue" "queue_data" {
-  name = aws_sqs_queue.ms-queue.name 
-}
-
-output "sqs_queue_name" {
-    value = aws_sqs_queue.ms-queue.name
-} 
-
-output "sqs_url" {
-  value = aws_sqs_queue.ms-queue.url
-}

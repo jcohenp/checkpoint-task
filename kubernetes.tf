@@ -1,18 +1,12 @@
-data "aws_eks_cluster_auth" "main" {
-  name = local.cluster_name
-}
-
 provider "kubernetes" {
   host                    = module.eks.cluster_endpoint
   cluster_ca_certificate  = base64decode(module.eks.cluster_certificate_authority_data)
-  token                   = data.aws_eks_cluster_auth.main.token
+  exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args        = ["eks", "get-token", "--cluster-name", local.cluster_name]
+      command     = "aws"
+  }
 }
-
-provider "aws" {
-  region = var.region
-}
-
-data "aws_availability_zones" "available" {}
 
 locals {
   cluster_name = "eks-${random_string.suffix.result}"

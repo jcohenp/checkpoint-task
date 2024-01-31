@@ -18,7 +18,7 @@ module "eks" {
     one = {
       name = var.node_group1
 
-      instance_types = ["t3.medium"]
+      instance_types = [var.node-group-instance-type]
 
       min_size     = 1
       max_size     = 3
@@ -28,7 +28,7 @@ module "eks" {
     two = {
       name = var.node_group2
 
-      instance_types = ["t3.medium"]
+      instance_types = [var.node-group-instance-type]
 
       min_size     = 1
       max_size     = 2

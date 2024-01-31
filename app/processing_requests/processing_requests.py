@@ -14,6 +14,7 @@ app = Flask(__name__)
 sqs = boto3.client('sqs', region_name='us-east-1')
 ssm = boto3.client('ssm', region_name='us-east-1')
 
+
 # Function to get the token from SSM
 def get_token_from_ssm():
     try:
@@ -26,6 +27,7 @@ def get_token_from_ssm():
         logger.error(f"Error getting token from SSM: {str(e)}")
         return None
 
+
 def get_sqs_from_ssm():
     try:
         response = ssm.get_parameter(
@@ -37,11 +39,13 @@ def get_sqs_from_ssm():
         logger.error(f"Error getting SQS queue from SSM: {str(e)}")
         return None
 
+
 # Function to validate token correctness
 def validate_token(token):
     expected_token = get_token_from_ssm()
     logger.debug(f"Expected token: {expected_token}")
     return token == expected_token
+
 
 # Function to validate date format and fields
 def validate_date_format_and_fields(data):
@@ -64,6 +68,7 @@ def validate_date_format_and_fields(data):
     except (ValueError, KeyError):
         return False
 
+
 @app.route('/process_request', methods=['POST'])
 def process_request():
     try:
@@ -82,7 +87,7 @@ def process_request():
 
         # get sqs queue url
         sqs_url = get_sqs_from_ssm()
-        
+
         # Publish data to SQS
         sqs.send_message(
             QueueUrl=sqs_url,
@@ -95,6 +100,7 @@ def process_request():
     except Exception as e:
         logger.exception(f"An error occurred: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)

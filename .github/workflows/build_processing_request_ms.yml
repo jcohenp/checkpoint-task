@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Image on processing_requests registry
 
 on:
   workflow_dispatch:
@@ -10,6 +10,31 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r tests/requirements.txt
+
+      - name: Run Flake8
+        run: |
+          flake8 --max-line-length 99  
+        continue-on-error: false
+
+      - name: Run tests
+        run: |
+          python -m unittest -v tests/processing_requests_unittest.py
+        continue-on-error: false
+
+      - uses: actions/checkout@v3
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: app/processing_requests/Dockerfile
 
       - name: Set Version
         run: |

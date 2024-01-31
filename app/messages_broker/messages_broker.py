@@ -6,6 +6,7 @@ s3 = boto3.client('s3', region_name='us-east-1')
 sqs = boto3.client('sqs', region_name='us-east-1')
 ssm = boto3.client('ssm', region_name='us-east-1')
 
+
 def get_sqs_from_ssm():
     try:
         response = ssm.get_parameter(
@@ -16,6 +17,7 @@ def get_sqs_from_ssm():
     except Exception as e:
         print(f"Error getting sqs queue from SSM: {str(e)}")
         return None
+
 
 def get_bucket_from_ssm():
     try:
@@ -28,18 +30,17 @@ def get_bucket_from_ssm():
         print(f"Error getting sqs queue from SSM: {str(e)}")
         return None
 
-def process_messages():
+
+def process_messages(max_iterations=None):
     queue_url = get_sqs_from_ssm()
     bucket_name = get_bucket_from_ssm()
-    while True:
+    iterations = 0
+
+    while max_iterations is None or iterations < max_iterations:
         response = sqs.receive_message(
             QueueUrl=queue_url,
-            AttributeNames=[
-                'All'
-            ],
-            MessageAttributeNames=[
-                'All'
-            ],
+            AttributeNames=['All'],
+            MessageAttributeNames=['All'],
             MaxNumberOfMessages=1,
             VisibilityTimeout=0,
             WaitTimeSeconds=0
@@ -64,7 +65,9 @@ def process_messages():
                 except Exception as e:
                     print(f"Error processing message: {str(e)}")
 
-        time.sleep(5) 
+        iterations += 1
+        time.sleep(5)
+
 
 if __name__ == '__main__':
     process_messages()

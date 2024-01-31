@@ -29,3 +29,19 @@ output "ssm_bucket" {
 output "ssm_sqs" {
     value = aws_ssm_parameter.sqs_queue.name
 }
+
+output "load_balancer_name" {
+  value = local.lb_name
+}
+
+output "sqs_queue_name" {
+    value = aws_sqs_queue.ms-queue.name
+} 
+
+output "sqs_url" {
+  value = aws_sqs_queue.ms-queue.url
+}
+
+output "s3_bucket_name" {
+  value = aws_s3_bucket.final-bucket.bucket
+}

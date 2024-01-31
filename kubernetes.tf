@@ -1,21 +1,16 @@
-data "aws_eks_cluster_auth" "main" {
-  name = local.cluster_name
-}
-
 provider "kubernetes" {
   host                    = module.eks.cluster_endpoint
   cluster_ca_certificate  = base64decode(module.eks.cluster_certificate_authority_data)
-  token                   = data.aws_eks_cluster_auth.main.token
+  exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args        = ["eks", "get-token", "--cluster-name", local.cluster_name]
+      command     = "aws"
+  }
 }
-
-provider "aws" {
-  region = var.region
-}
-
-data "aws_availability_zones" "available" {}
 
 locals {
   cluster_name = "eks-${random_string.suffix.result}"
+  lb_name = kubernetes_service.processing_requests_svc.status.0.load_balancer.0.ingress.0.hostname
 }
 
 resource "random_string" "suffix" {
@@ -93,4 +88,10 @@ resource "kubernetes_deployment" "messages_broker" {
       }
     }
   }
+  depends_on = [
+    aws_iam_role_policy_attachment.custom_nodegroup_policy_node1,
+    aws_iam_role_policy_attachment.custom_nodegroup_policy_node2,
+    aws_iam_role_policy_attachment.sqs_publish_policy_attachment_node1,
+    aws_iam_role_policy_attachment.sqs_publish_policy_attachment_node2
+  ]
 }

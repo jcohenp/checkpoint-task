@@ -1,4 +1,4 @@
-name: Deploy on EKS environment
+name: Deploy on EKS environment processing_requests registry
 
 on:
   workflow_dispatch:

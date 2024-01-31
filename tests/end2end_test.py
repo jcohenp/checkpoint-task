@@ -4,6 +4,7 @@ import requests
 import pytest
 import boto3
 import json
+import time
 
 ssm = boto3.client('ssm', region_name='us-east-1')
 
@@ -60,6 +61,7 @@ def test_s3_file_content(valid_payload):
     response = requests.post(f"http://{BASE_URL}:5001/process_request", json=valid_payload)
     assert response.status_code == 200
 
+    time.sleep(60)
     # Extract the file key from the response
     file_key = f'sqs_message_{valid_payload["data"]["email_timestream"]}.json'
 
